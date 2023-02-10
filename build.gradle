@@ -32,7 +32,8 @@ dependencies {
 	/* swagger */
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
   implementation 'io.springfox:springfox-swagger-ui:3.0.0'
-  
+  /*gson(인증정보 JSON 문자열 처리)*/
+  implementation 'com.google.code.gson:gson:2.8.9'
 }
 
 tasks.named('test') {
