@@ -34,6 +34,9 @@ dependencies {
   implementation 'io.springfox:springfox-swagger-ui:3.0.0'
   /*gson(인증정보 JSON 문자열 처리)*/
   implementation 'com.google.code.gson:gson:2.8.9'
+  // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+implementation 'io.jsonwebtoken:jjwt:0.9.1'
+  
 }
 
 tasks.named('test') {
