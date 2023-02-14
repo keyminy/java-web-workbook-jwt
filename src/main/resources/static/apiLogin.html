@@ -10,8 +10,12 @@
 <script>
     document.querySelector(".btn1").addEventListener("click",()=> {
         const data = {mid:"apiuser10", mpw:"1111"};
-
-        axios.post("http://localhost:8085/generateToken", data);
+		
+        axios.post("http://localhost:8085/generateToken", data)
+        	.then(res => {
+        		console.log("data : ",res.data);
+        		console.log("access Token : ",res.data.accessToken);
+        	});
     }, false);
 </script>
 </body>

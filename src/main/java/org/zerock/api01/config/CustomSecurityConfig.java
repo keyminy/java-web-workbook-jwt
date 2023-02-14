@@ -1,7 +1,6 @@
 package org.zerock.api01.config;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.zerock.api01.security.APIUserDetailsService;
 import org.zerock.api01.security.filter.APILoginFilter;
+import org.zerock.api01.security.filter.TokenCheckFilter;
 import org.zerock.api01.security.handler.APILoginSuccessHandler;
 import org.zerock.api01.util.JWTUtil;
 
@@ -69,7 +69,7 @@ public class CustomSecurityConfig {
         //반드시 필요,APILoginFilter에 AuthenticationManager 객체 설정
         apiLoginFilter.setAuthenticationManager(authenticationManager);
         
-        //APILoginSuccessHandler
+        //APILoginSuccessHandler : Access Token과 Refresh Token 발급 역할
         APILoginSuccessHandler successHandler = new APILoginSuccessHandler(jwtUtil);
         //SuccessHandler 세팅
         apiLoginFilter.setAuthenticationSuccessHandler(successHandler);
@@ -78,10 +78,20 @@ public class CustomSecurityConfig {
         //UsernamePasswordAuthenticationFilter는 id랑 pw검사하는건가??
         http.addFilterBefore(apiLoginFilter, UsernamePasswordAuthenticationFilter.class);
         
+        //api로 시작하는 모든 경로는 TokenCheckFilter 동작
+        http.addFilterBefore(
+                tokenCheckFilter(jwtUtil),
+                UsernamePasswordAuthenticationFilter.class
+        );
+        
         http.csrf().disable(); //1.csrf토큰 비활성화
         http.sessionManagement()
         	.sessionCreationPolicy(SessionCreationPolicy.STATELESS); //2.세션을 사용하지 않음
         return http.build();
+    }
+    
+    private TokenCheckFilter tokenCheckFilter(JWTUtil jwtUtil) {
+    	return new TokenCheckFilter(jwtUtil);
     }
     
 }
