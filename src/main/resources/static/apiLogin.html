@@ -13,8 +13,10 @@
 		
         axios.post("http://localhost:8085/generateToken", data)
         	.then(res => {
-        		console.log("data : ",res.data);
-        		console.log("access Token : ",res.data.accessToken);
+        		const accessToken = res.data.accessToken;
+        		const refreshToken = res.data.refreshToken;
+        		localStorage.setItem("accessToken",accessToken);
+        		localStorage.setItem("refreshToken",refreshToken);
         	});
     }, false);
 </script>

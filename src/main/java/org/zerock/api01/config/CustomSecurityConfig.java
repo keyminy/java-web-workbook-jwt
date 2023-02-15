@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.zerock.api01.security.APIUserDetailsService;
 import org.zerock.api01.security.filter.APILoginFilter;
+import org.zerock.api01.security.filter.RefreshTokenFilter;
 import org.zerock.api01.security.filter.TokenCheckFilter;
 import org.zerock.api01.security.handler.APILoginSuccessHandler;
 import org.zerock.api01.util.JWTUtil;
@@ -83,6 +84,12 @@ public class CustomSecurityConfig {
                 tokenCheckFilter(jwtUtil),
                 UsernamePasswordAuthenticationFilter.class
         );
+        
+        //refreshToken의 호출 처리
+        /*RefreshTokenFilter가 다른 JWT 필터들의 동작 이전에 할 수 있도록
+         * TokenCheckFilter의 앞으로 배치 */
+        http.addFilterBefore(new RefreshTokenFilter("/refreshToken", jwtUtil)
+        		, TokenCheckFilter.class);
         
         http.csrf().disable(); //1.csrf토큰 비활성화
         http.sessionManagement()
