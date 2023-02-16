@@ -8,7 +8,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.zerock.api01.security.APIUserDetailsService;
 import org.zerock.api01.security.exception.AccessTokenException;
 import org.zerock.api01.util.JWTUtil;
 
@@ -23,6 +27,7 @@ import lombok.extern.log4j.Log4j2;
 public class TokenCheckFilter extends OncePerRequestFilter {
 
 	private final JWTUtil jwtUtil;
+	private final APIUserDetailsService apiUserDetailsService;
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request
@@ -39,7 +44,18 @@ public class TokenCheckFilter extends OncePerRequestFilter {
 		log.info("JWTUtil : " + jwtUtil);
 		
 		try {
-			validateAccessToken(request);
+			Map<String,Object> payload = validateAccessToken(request);
+			//mid
+			String mid = (String)payload.get("mid");
+			log.info("mid : " + mid);
+			//apiUserDetailsService.loadUserByUsername(mid) => UserDetails타입 : 로그인 정보(세션?) 획득
+			UserDetails userDetails = apiUserDetailsService.loadUserByUsername(mid);
+			//UserDetails이용해서, UsernamePasswordAuthenticationToken 객체 구성
+			UsernamePasswordAuthenticationToken authentication = 
+					new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
+			//SecurityContextHolder에 인증과 관련된 정보 저장
+			//SecurityContextHolder안의 SecurityContext메모리에 회원과,권한정보를 담아놓는다.
+			SecurityContextHolder.getContext().setAuthentication(authentication);
 			filterChain.doFilter(request, response);		
 		} catch (AccessTokenException accessTokenException) {
 			//문제 발생 시, 브라우저에서 에러 메시지를 상태 코드와 함께 전송하도록 처리
