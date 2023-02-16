@@ -1,7 +1,13 @@
+buildscript {
+    ext {
+        queryDslVersion = "5.0.0"
+    }
+}
+
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '2.7.8'
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'org.springframework.boot' version '2.7.5'
+  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 group = 'org.zerock'
@@ -35,10 +41,34 @@ dependencies {
   /*gson(인증정보 JSON 문자열 처리)*/
   implementation 'com.google.code.gson:gson:2.8.9'
   // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
-implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	
+	//queryDSL
+  implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
   
+  annotationProcessor(
+      "javax.persistence:javax.persistence-api",
+      "javax.annotation:javax.annotation-api",
+      "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+//https://abbo.tistory.com/303
+test.onlyIf {
+    !project.hasProperty('test')
+}
+
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
+        }
+    }
 }

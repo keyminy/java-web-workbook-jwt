@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.zerock.api01.domain.QAPIUser;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -18,4 +19,5 @@ public class SampleController {
 	public List<String> doA(){
 		return Arrays.asList("AAA","BBB","CCC");
 	}
+	
 }
