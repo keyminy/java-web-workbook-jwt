@@ -99,8 +99,8 @@ public class RefreshTokenFilter extends OncePerRequestFilter{
 			refreshTokenValue = jwtUtil.generateToken(Map.of("mid",mid),30);//생성
 		}
 		log.info("Refresh Token result..........");
-		log.info("accessToken : " + accessToken);
-		log.info("refreshToken : " + refreshToken);
+		log.info("accessToken : " + accessTokenValue);
+		log.info("refreshToken : " + refreshTokenValue);
 		
 		/* 최종적으로 만들어진 토큰들을 화면에 전송 */
 		sendTokens(accessTokenValue, refreshTokenValue, response);

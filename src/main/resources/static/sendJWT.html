@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Title</title>
+</head>
+<body>
+	<div class="result">
+	</div>
+	
+	<button class="btn1">CALL SERVER</button>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+		const callServer = async () => {
+			console.log("call server 1...");
+			const accessToken = localStorage.getItem("accessToken");
+			if(!accessToken){
+				throw 'Cannot Find Access Token!';
+			}
+			
+			/*Access Token이 존재하면, '/api/sample/doA' 경로를 호출하도록 */
+			//Access Token은 HTTP의 'Authorization' 헤더로 전송해야 하므로, 다음과 같이 작성
+			const authHeader = {"Authorization":`Bearer ${accessToken}`};
+			try{
+				const res = await axios.get("http://localhost:8085/api/sample/doA"
+																	,{headers:authHeader});
+				return res.data;				
+			}catch(err){
+				if(err.response.data.msg === 'Expired Token'){//오래된 Access Token일 경우임
+					console.log("Refresh Your Token");
+
+					try{
+						await callRefresh(); //refreshToken 호출
+						console.log("new tokens... saved..");
+						//새로운 토큰을 localStorage에 저장 후, 다시 원래 기능 호출
+						return callServer();
+					}catch(refreshErr){
+						throw refreshErr.response.data.msg;					
+					}
+				}//end if
+			}//end catch
+		}
+		
+		const callRefresh = async () => {
+			const accessToken = localStorage.getItem("accessToken");
+			const refreshToken = localStorage.getItem("refreshToken");
+			
+			const tokens = {accessToken,refreshToken};
+			//새로운 토큰을 받고 Local Storage에 저장합니다.
+			const res = await axios.post("http://localhost:8085/refreshToken",tokens);
+			localStorage.setItem("accessToken",res.data.accessToken);
+			localStorage.setItem("refreshToken",res.data.refreshToken);
+		}
+		
+		const resultDiv = document.querySelector(".result");
+		
+		document.querySelector(".btn1").addEventListener("click",()=>{
+			callServer().then(result => {
+				console.log(result);
+			}).catch(err => {
+				alert(err);
+			});
+		},false);
+	</script>
+</body>
+</html>
